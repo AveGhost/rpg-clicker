@@ -3,6 +3,7 @@ import PlayerInfo from './components/header/player-info.component'
 import PlayerStats from './components/sidebar/player-stats.component'
 import GameBorad from './components/content/game-board.component'
 import { PlayerInfoProvider } from './context/player-info.context'
+import { MonsterInfoProvider } from './context/monster-info.context'
 
 function App() {
 
@@ -12,7 +13,9 @@ function App() {
         <PlayerInfoProvider>
           <PlayerInfo />
           <PlayerStats />
-          <GameBorad />
+          <MonsterInfoProvider>
+            <GameBorad />
+          </MonsterInfoProvider>
         </PlayerInfoProvider>
       </div>
     </div>

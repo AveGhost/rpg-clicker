@@ -10,7 +10,6 @@ const PlayerInfoProvider = ({children}) => {
     const [requiredExp, setRequiredExp] = useLocalStorageState('requiredExp', {defaultValue: 100})
     const [gold, setGold] = useLocalStorageState('gold', {defaultValue: 0})
     const [defaultPlayerHp, setDefaultPlayerHp] = useLocalStorageState('playerHp', {defaultValue: 100})
-    const [playerDamage, setPlayerDamage] = useLocalStorageState('playerDamage', {defaultValue: 10})
     const [strength, setStrength] = useLocalStorageState('strength', {defaultValue: 10})
     const [dexterity, setDexterity] = useLocalStorageState('dexterity', {defaultValue: 10})
     const [endurance, setEndurance] = useLocalStorageState('endurance', {defaultValue: 10})
@@ -42,7 +41,7 @@ const PlayerInfoProvider = ({children}) => {
     }
 
     return (
-        <playerInfoContext.Provider value={{lvl, setLvl, exp, setExp, requiredExp, setRequiredExp, gold, setGold, strength, setStrength, dexterity, setDexterity, endurance, setEndurance, luck, setLuck, lvlUp, skillPoints, setSkillPoints, defaultPlayerHp, setDefaultPlayerHp, increaseStat, playerDamage, setPlayerDamage}}>
+        <playerInfoContext.Provider value={{lvl, setLvl, exp, setExp, requiredExp, setRequiredExp, gold, setGold, strength, setStrength, dexterity, setDexterity, endurance, setEndurance, luck, setLuck, lvlUp, skillPoints, setSkillPoints, defaultPlayerHp, setDefaultPlayerHp, increaseStat}}>
             {children}
         </playerInfoContext.Provider>
     )
