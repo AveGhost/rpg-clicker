@@ -16,27 +16,25 @@ const GameBorad = () => {
     })
     const [battleLogs, setBattleLogs] = useState([])
     const [isOver, setIsOver] = useState(false)
-    const { exp, setExp, gold, setGold, lvlUp, defaultPlayerHp, strength, dexterity, luck } = useContext(playerInfoContext)
-    const { defaultMonsterHp, monsterStrength, monsterDexterity, monsterLuck } = useContext(MonsterInfoContext)
+    const { exp, setExp, gold, setGold, lvlUp, defaultPlayerHp, strength, dexterity, luck, lvl, isDoubleExp, setIsDoubleExp, isBoostOver, setIsBoostOver } = useContext(playerInfoContext)
+    const { defaultMonsterHp, monsterStrength, monsterDexterity, monsterLuck, monsterLvlUp } = useContext(MonsterInfoContext)
     const [playerHp, setPlayerHp] = useState(defaultPlayerHp)
     const [monsterHp, setMonsterHp] = useState(defaultMonsterHp)
 
     const playerAttack = (damage) => {
         setMonsterHp(monsterHp - damage)
         battleLogs.push({who: 'player', text: `Player attacked for ${damage} damage`})
-        if(monsterHp - damage <= 0) { return }
     }
 
     const monsterAttack = (damage) => {
         setPlayerHp(playerHp - damage)
         battleLogs.push({who: 'monster', text: `Monster attacked for ${damage} damage`})
-        if(playerHp - damage <= 0) { return }
     }
 
     const playerTurn = () => {
-        let damage = Math.floor(Math.random() * 10) + 1 + (strength * 0.4)
-        const evade = Math.floor(Math.random() * 100) + 1 <= monsterDexterity
-        const criticalHitChance = Math.floor(Math.random() * 100) + 1 <= luck * 0.5
+        let damage = Math.floor(Math.random() * 10 + 1 + (strength * 0.4))
+        const evade = Math.floor(Math.random() * 100 + 1 <= monsterDexterity)
+        const criticalHitChance = Math.floor(Math.random() * 100 + 1 <= luck * 0.5)
         if(!evade && !criticalHitChance) {
             playerAttack(damage)
         }
@@ -50,12 +48,13 @@ const GameBorad = () => {
             battleLogs.push({who: 'player', text: `Critical hit! Player attacked for ${criticalHit} damage`})
             return
         }
+        if(monsterHp <= 0) gameOver()
     }
 
     const monsterTurn = () => {
-        let damage = Math.floor(Math.random() * 10) + 1 + (monsterStrength * 0.4)
-        const evade = Math.floor(Math.random() * 100) + 1 <= dexterity
-        const criticalHitChance = Math.floor(Math.random() * 100) + 1 <= monsterLuck * 0.5
+        let damage = Math.floor(Math.random() * 10 + 1 + (monsterStrength * 0.4))
+        const evade = Math.floor(Math.random() * 100 + 1 <= dexterity)
+        const criticalHitChance = Math.floor(Math.random() * 100 + 1 <= monsterLuck * 0.5)
         if(!evade && !criticalHitChance) {
             monsterAttack(damage)
         }
@@ -69,6 +68,7 @@ const GameBorad = () => {
             battleLogs.push({who: 'monster', text: `Critical hit! Monster attacked for ${criticalHit} damage`})
             return
         }
+        if(playerHp <= 0) gameOver()
     }
 
     const handleBattle = () => {
@@ -77,16 +77,25 @@ const GameBorad = () => {
         setBattleLogs([...battleLogs])
     }
 
+    const handleRewards = (gainedExp, gainedGold) => {
+        if(isDoubleExp) {
+            setExp(exp + (gainedExp * 2))
+            setGameInfoLogs({exp: gainedExp * 2, gold: gainedGold})
+        } else {
+            setExp(exp + gainedExp)
+            setGameInfoLogs({exp: gainedExp, gold: gainedGold})
+        }
+    }
+
     const gameOver = () => {
         if (playerHp <= 0) {
             setBattleEndInfo({who: 'monster', text: 'Monster won'})
-            setGameInfoLogs({exp: 2, gold: 0})
-            setExp(exp + 20)
+            handleRewards(2,0)
             setIsOver(true)
-        } else if (monsterHp <= 0) {
+        } 
+        if (monsterHp <= 0) {
             setBattleEndInfo({who: 'player', text: 'Player won'})
-            setGameInfoLogs({exp: 10, gold: 5})
-            setExp(exp + 80)
+            handleRewards(20,5)
             setGold(gold + 5)
             setIsOver(true)
         }
@@ -97,10 +106,19 @@ const GameBorad = () => {
         setBattleLogs([])
         setBattleEndInfo({who: '', text: ''})
         setGameInfoLogs({exp: null, gold: null})
-        setMonsterLogs({who: 'monster', text: ''})
-        setPlayerLogs({who: 'player', text: ''})
         setPlayerHp(defaultPlayerHp)
         setMonsterHp(defaultMonsterHp)
+        lvlUp()
+        if(isDoubleExp) {
+            setIsBoostOver(isBoostOver + 1)
+        }
+    }
+
+    const buyExpBooster = () => {
+        if(gold >= 50 && !isDoubleExp) {
+            setGold(gold - 50)
+            setIsDoubleExp(true)
+        }
     }
 
     useEffect(() => {
@@ -109,8 +127,11 @@ const GameBorad = () => {
 
     useEffect(() => {
         gameOver()
-        lvlUp()
     },[playerHp, monsterHp])
+
+    useEffect(() => {
+        monsterLvlUp(lvl)
+    },[lvl])
 
     useEffect(() => {
         setPlayerHp(defaultPlayerHp)
@@ -120,10 +141,17 @@ const GameBorad = () => {
         setMonsterHp(defaultMonsterHp)
     },[defaultMonsterHp])
 
+    useEffect(() => {
+        if(isBoostOver >= 3) {
+            setIsDoubleExp(false)
+            setIsBoostOver(0)
+        }
+    },[isBoostOver])
+
     return (
         <>
             <div className="flex gap-10">
-                <Player name={'AveGhost'} hp={playerHp} defaultHp={defaultPlayerHp} avatar={'/avatar.webp'} isPlayer={true} damage={handleBattle} />
+                <Player name={'AveGhost'} hp={playerHp} defaultHp={defaultPlayerHp} avatar={'/avatar.webp'} isPlayer={true} damage={handleBattle} gold={gold} doubleExp={buyExpBooster} />
                 <Player name={'Ghoul'} hp={monsterHp} defaultHp={defaultMonsterHp} avatar={'/monster.avif'} isPlayer={false} />
             </div>
             <GameLogs battleLogs={battleLogs} gameInfoLogs={gameInfoLogs} />

@@ -6,7 +6,7 @@ const playerInfoContext = createContext();
 const PlayerInfoProvider = ({children}) => {
     const [lvl, setLvl] = useLocalStorageState('lvl', {defaultValue: 1})
     const [exp, setExp] = useLocalStorageState('exp', {defaultValue: 0})
-    const [skillPoints, setSkillPoints] = useLocalStorageState('skillPoints', {defaultValue: 10})
+    const [skillPoints, setSkillPoints] = useLocalStorageState('skillPoints', {defaultValue: 0})
     const [requiredExp, setRequiredExp] = useLocalStorageState('requiredExp', {defaultValue: 100})
     const [gold, setGold] = useLocalStorageState('gold', {defaultValue: 0})
     const [defaultPlayerHp, setDefaultPlayerHp] = useLocalStorageState('playerHp', {defaultValue: 100})
@@ -14,6 +14,8 @@ const PlayerInfoProvider = ({children}) => {
     const [dexterity, setDexterity] = useLocalStorageState('dexterity', {defaultValue: 10})
     const [endurance, setEndurance] = useLocalStorageState('endurance', {defaultValue: 10})
     const [luck, setLuck] = useLocalStorageState('luck', {defaultValue: 10})
+    const [isDoubleExp, setIsDoubleExp] = useLocalStorageState('isDoubleExp', {defaultValue: false})
+    const [isBoostOver, setIsBoostOver] = useLocalStorageState('isBoostOver', {defaultValue: 0})
 
     const lvlUp = () => {
         if(exp >= requiredExp) {
@@ -41,7 +43,7 @@ const PlayerInfoProvider = ({children}) => {
     }
 
     return (
-        <playerInfoContext.Provider value={{lvl, setLvl, exp, setExp, requiredExp, setRequiredExp, gold, setGold, strength, setStrength, dexterity, setDexterity, endurance, setEndurance, luck, setLuck, lvlUp, skillPoints, setSkillPoints, defaultPlayerHp, setDefaultPlayerHp, increaseStat}}>
+        <playerInfoContext.Provider value={{lvl, setLvl, exp, setExp, requiredExp, setRequiredExp, gold, setGold, strength, setStrength, dexterity, setDexterity, endurance, setEndurance, luck, setLuck, lvlUp, skillPoints, setSkillPoints, defaultPlayerHp, setDefaultPlayerHp, increaseStat, isDoubleExp, setIsDoubleExp, isBoostOver, setIsBoostOver}}>
             {children}
         </playerInfoContext.Provider>
     )
